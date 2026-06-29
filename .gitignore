@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+
+# Environment and tooling
+.env
+.pytest_cache/
+.ruff_cache/
+
+# Runtime data
+data/vectorstore/*
+!data/vectorstore/.gitkeep
+
+# Editors and operating systems
+.idea/
+.vscode/
+.DS_Store
+
