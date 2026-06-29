@@ -12,9 +12,12 @@ __pycache__/
 # Runtime data
 data/vectorstore/*
 !data/vectorstore/.gitkeep
+data/checkpoints/*
+!data/checkpoints/.gitkeep
 
 # Editors and operating systems
 .idea/
 .vscode/
 .DS_Store
 
+PLAN.md
