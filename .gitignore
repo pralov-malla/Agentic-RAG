@@ -10,6 +10,7 @@ __pycache__/
 .ruff_cache/
 
 # Runtime data
+data/documents/pralov_malla.pdf
 data/vectorstore/*
 !data/vectorstore/.gitkeep
 data/checkpoints/*

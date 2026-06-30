@@ -1,0 +1,31 @@
+# Secrets
+.env
+
+# Version control
+.git/
+.gitignore
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+
+# Tooling caches
+.pytest_cache/
+.ruff_cache/
+
+# Runtime data (created at runtime via volumes)
+data/vectorstore/*
+data/checkpoints/*
+!data/vectorstore/.gitkeep
+!data/checkpoints/.gitkeep
+
+# Tests and planning docs
+tests/
+PLAN.md
+
+# Editors
+.idea/
+.vscode/
+.DS_Store
