@@ -1,7 +1,6 @@
 """Environment-based application configuration."""
 
 from pathlib import Path
-from typing import Optional
 
 from pydantic import ConfigDict, Field, SecretStr, field_validator, model_validator
 from pydantic_settings import BaseSettings
@@ -13,6 +12,7 @@ class Settings(BaseSettings):
         env_file_encoding="utf-8",
         case_sensitive=True,
         extra="ignore",
+        frozen=True,
     )
 
     # Gemini
@@ -27,11 +27,12 @@ class Settings(BaseSettings):
     )
     EMBEDDING_DIMENSIONS: int = Field(
         default=768,
+        gt=0,
         description="Embedding vector dimensionality",
     )
 
     # Cohere reranking (optional)
-    COHERE_API_KEY: Optional[SecretStr] = Field(
+    COHERE_API_KEY: SecretStr | None = Field(
         default=None,
         description="Cohere API key (optional, falls back to vector ranking)",
     )
@@ -39,21 +40,33 @@ class Settings(BaseSettings):
         default="rerank-v4.0-fast",
         description="Cohere rerank model name",
     )
+    # ChromaDB (separate container)
+    CHROMA_HOST: str = Field(
+        default="localhost",
+        min_length=1,
+        description="ChromaDB server host",
+    )
+    CHROMA_PORT: int = Field(
+        default=8100,
+        ge=1,
+        le=65535,
+        description="ChromaDB server port",
+    )
+    CHROMA_SSL: bool = Field(default=False, description="Use SSL for ChromaDB connection")
 
     # Data paths
-    CHROMA_PATH: Path = Field(
-        default=Path("data/vectorstore"),
-        description="ChromaDB persistence directory",
+    INDEX_MANIFEST_PATH: Path = Field(
+        default=Path("data/checkpoints/active_index.json"),
+        description="Active index manifest file path",
     )
     CHECKPOINT_DB_PATH: Path = Field(
         default=Path("data/checkpoints/checkpoints.sqlite"),
         description="SQLite checkpoint database path",
     )
     DEFAULT_DOCUMENT_PATH: Path = Field(
-        default=Path("data/documents/NIST.AI.100-1.pdf"),
+        default=Path("data/documents/pralov_malla.pdf"),
         description="Bundled default document path",
     )
-
     # Chunking and retrieval
     CHUNK_SIZE: int = Field(default=1200, description="Maximum chunk size in characters")
     CHUNK_OVERLAP: int = Field(default=180, description="Chunk overlap in characters")
@@ -62,6 +75,12 @@ class Settings(BaseSettings):
     MAX_REWRITE_ATTEMPTS: int = Field(default=1, description="Maximum query rewrite retries")
     MAX_HISTORY_MESSAGES: int = Field(default=8, description="Conversation history window")
     MAX_UPLOAD_MB: int = Field(default=10, description="Maximum upload file size in MB")
+
+    # Intent routing
+    INTENT_CONFIDENCE_THRESHOLD: float = Field(
+        default=0.70,
+        description="Minimum confidence to trust intent classification",
+    )
 
     @field_validator("CHUNK_OVERLAP")
     @classmethod
@@ -82,9 +101,20 @@ class Settings(BaseSettings):
             raise ValueError(msg)
         return self
 
+    @field_validator("INTENT_CONFIDENCE_THRESHOLD")
+    @classmethod
+    def threshold_between_zero_and_one(cls, v: float) -> float:
+        if not 0 <= v <= 1:
+            msg = f"INTENT_CONFIDENCE_THRESHOLD must be between 0 and 1, got {v}"
+            raise ValueError(msg)
+        return v
+
     @property
     def has_cohere(self) -> bool:
-        return self.COHERE_API_KEY is not None
+        return bool(
+            self.COHERE_API_KEY
+            and self.COHERE_API_KEY.get_secret_value().strip()
+        )
 
     @property
     def max_upload_bytes(self) -> int:
@@ -92,7 +122,7 @@ class Settings(BaseSettings):
 
     def ensure_directories(self) -> None:
         """Create data directories if they do not exist."""
-        self.CHROMA_PATH.mkdir(parents=True, exist_ok=True)
+        self.INDEX_MANIFEST_PATH.parent.mkdir(parents=True, exist_ok=True)
         self.CHECKPOINT_DB_PATH.parent.mkdir(parents=True, exist_ok=True)
         self.DEFAULT_DOCUMENT_PATH.parent.mkdir(parents=True, exist_ok=True)
 
