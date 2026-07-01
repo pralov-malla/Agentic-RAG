@@ -1,0 +1,56 @@
+# Andrej Karpathy: A Concise Profile
+
+Source: https://aiwiki.ai/wiki/andrej_karpathy
+Accessed: 2026-07-01
+
+This is an original condensed profile prepared for an educational retrieval-augmented generation demo. It summarizes public information from the source above and from Karpathy's public academic and open-source profiles. It is not a verbatim copy of the AI Wiki article.
+
+## Overview
+
+Andrej Karpathy is a Slovak-Canadian computer scientist, artificial intelligence researcher, educator, and software builder. He is widely known for work spanning computer vision, deep learning, autonomous-driving systems, and language models. His public teaching style emphasizes understanding neural networks from first principles and implementing small, readable versions of otherwise complex systems.
+
+Karpathy has worked in academic research and at major AI organizations. He was part of OpenAI's early team, led AI work related to Tesla's Autopilot vision system, later returned to OpenAI, and founded the AI education company Eureka Labs. The AI Wiki profile reviewed in June 2026 reports that he joined Anthropic to work on AI-assisted pre-training research.
+
+## Education and Academic Research
+
+Karpathy studied computer science and physics at the University of Toronto and completed a master's degree in computer science at the University of British Columbia. He later earned a PhD from Stanford University under the supervision of Fei-Fei Li.
+
+His doctoral research examined connections between computer vision and natural language. This included models for describing images, aligning visual information with text, and understanding video. His research contributed to work on image captioning, visual-semantic representations, dense captioning, recurrent neural networks, and large-scale video classification.
+
+At Stanford, Karpathy helped create and teach CS231n, a course on convolutional neural networks for visual recognition. Its notes, assignments, and lecture videos became widely used learning resources. The course encouraged students to develop intuition by implementing important neural-network components rather than treating deep-learning frameworks as black boxes.
+
+## OpenAI and Tesla
+
+Karpathy joined OpenAI during its early period and worked on research involving generative models, reinforcement learning, and language modeling. He later joined Tesla in 2017 and became Senior Director of AI.
+
+At Tesla, he led work on neural networks for the Autopilot vision system. His responsibilities included model architecture, training infrastructure, data labeling, and deployment. He frequently described the importance of a data engine: a feedback loop that discovers difficult examples, labels them, retrains models, and improves deployed systems over time.
+
+Karpathy advocated a vision-centered approach to autonomous driving in which cameras and neural networks perform most perception tasks. This approach was influential but also debated because camera performance can be affected by difficult lighting and weather conditions.
+
+## Education and Open-Source Projects
+
+After leaving Tesla, Karpathy focused heavily on technical education and open-source software. His Neural Networks: Zero to Hero series teaches neural networks by constructing them step by step, beginning with basic automatic differentiation and progressing toward GPT-style language models.
+
+Several of his projects are designed for learning:
+
+- micrograd is a small automatic-differentiation engine that demonstrates backpropagation using scalar values.
+- makemore introduces character-level language modeling through progressively more capable neural-network architectures.
+- minGPT and nanoGPT present compact implementations of GPT training.
+- llm.c demonstrates GPT-2 training using C and CUDA with fewer abstractions.
+- minbpe demonstrates byte-pair encoding, a tokenization method commonly used by language models.
+
+These projects prioritize clarity over production features. Their purpose is to make the complete training process understandable to students and practitioners.
+
+## Ideas and Influence
+
+Karpathy introduced the phrase Software 2.0 to describe software whose behavior is learned from data rather than written entirely as explicit instructions. He later discussed Software 3.0, where large language models act like programmable computing platforms and natural-language prompts become an important interface.
+
+He also popularized the term vibe coding for a highly conversational style of AI-assisted programming. The idea generated discussion about faster experimentation, broader access to software creation, and the continuing need for human review, testing, and engineering judgment.
+
+Karpathy's influence comes from combining research, large-scale engineering, open-source implementation, and public education. Across these areas, a consistent theme is making advanced AI systems easier to understand by reducing them to clear explanations and minimal working code.
+
+## Public References
+
+- AI Wiki profile: https://aiwiki.ai/wiki/andrej_karpathy
+- Academic profile: https://cs.stanford.edu/people/karpathy/
+- GitHub profile: https://github.com/karpathy
