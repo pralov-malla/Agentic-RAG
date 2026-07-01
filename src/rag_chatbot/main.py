@@ -6,7 +6,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 
-from rag_chatbot.api.routes import health, knowledge_base
+from rag_chatbot.api.routes import chat, health, knowledge_base
 from rag_chatbot.config import settings
 from rag_chatbot.core.logging import configure_logging
 from rag_chatbot.rag.embeddings import build_embeddings
@@ -48,18 +48,38 @@ async def lifespan(app: FastAPI):
             )
         else:
             logger.warning(
-                "No active index found. "
-                "Ingest a document via /api/v1/knowledge-base/upload."
+                "No active index found. Ingest a document via /api/v1/knowledge-base/upload."
             )
+
+        from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
+
+        from rag_chatbot.graph.workflow import build_workflow
+        from rag_chatbot.rag.reranker import build_reranker
+        from rag_chatbot.services.chat import ChatService
+
+        logger.info("Initializing checkpointer at %s...", settings.CHECKPOINT_DB_PATH)
+        async with AsyncSqliteSaver.from_conn_string(
+            str(settings.CHECKPOINT_DB_PATH)
+        ) as checkpointer:
+            await checkpointer.setup()
+
+            logger.info("Compiling LangGraph workflow...")
+            reranker = build_reranker()
+            workflow = build_workflow(vector_store, reranker)
+            agent = workflow.compile(checkpointer=checkpointer)
+
+            app.state.chat_service = ChatService(agent, settings)
+
+            yield
+
+            logger.info("Shutting down...")
+            return
+
     except Exception as exc:
         logger.exception("Lifespan startup failed")
         app.state.startup_error = str(exc)
         yield
         return
-
-    yield
-
-    logger.info("Shutting down...")
 
 
 app = FastAPI(
@@ -71,6 +91,7 @@ app = FastAPI(
 
 app.include_router(health.router, prefix="/api/v1")
 app.include_router(knowledge_base.router, prefix="/api/v1")
+app.include_router(chat.router, prefix="/api/v1")
 
 
 @app.get("/", response_class=HTMLResponse)
