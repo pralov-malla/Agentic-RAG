@@ -117,9 +117,9 @@ async def respond_casually(state: GraphState) -> dict[str, object]:
 async def respond_with_scope(state: GraphState) -> dict[str, object]:
     logger.info("Generating unsupported scope response...")
     msg = (
-        "I can only answer questions based on the active document "
-        "(currently your CV/profile). I cannot browse the web, write code, "
-        "or perform external actions."
+        "I can chat with you and answer questions using the active document. "
+        "I cannot browse the web, run code, or perform external actions, but "
+        "I can explain, summarize, and find information in the document."
     )
     return {
         "messages": [AIMessage(content=msg)],
