@@ -64,8 +64,12 @@ class Settings(BaseSettings):
         description="SQLite checkpoint database path",
     )
     DEFAULT_DOCUMENT_PATH: Path = Field(
-        default=Path("data/documents/pralov_malla.pdf"),
+        default=Path("data/documents/andrej_karpathy.txt"),
         description="Bundled default document path",
+    )
+    DEFAULT_DOCUMENT_URL: str = Field(
+        default="https://aiwiki.ai/wiki/andrej_karpathy",
+        description="Public URL for the bundled default document",
     )
     # Chunking and retrieval
     CHUNK_SIZE: int = Field(default=1200, description="Maximum chunk size in characters")
@@ -95,8 +99,7 @@ class Settings(BaseSettings):
     def rerank_within_retrieval(self) -> "Settings":
         if self.RERANK_TOP_N > self.RETRIEVAL_K:
             msg = (
-                f"RERANK_TOP_N ({self.RERANK_TOP_N}) "
-                f"cannot exceed RETRIEVAL_K ({self.RETRIEVAL_K})"
+                f"RERANK_TOP_N ({self.RERANK_TOP_N}) cannot exceed RETRIEVAL_K ({self.RETRIEVAL_K})"
             )
             raise ValueError(msg)
         return self
@@ -111,10 +114,7 @@ class Settings(BaseSettings):
 
     @property
     def has_cohere(self) -> bool:
-        return bool(
-            self.COHERE_API_KEY
-            and self.COHERE_API_KEY.get_secret_value().strip()
-        )
+        return bool(self.COHERE_API_KEY and self.COHERE_API_KEY.get_secret_value().strip())
 
     @property
     def max_upload_bytes(self) -> int:

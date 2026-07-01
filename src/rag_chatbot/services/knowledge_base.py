@@ -106,8 +106,9 @@ class KnowledgeBaseService:
         return self._ingest_file(
             default_path,
             default_path.name,
-            document_type="pdf",
+            document_type=default_path.suffix.lstrip("."),
             source_name=default_path.name,
+            source_url=self._settings.DEFAULT_DOCUMENT_URL,
         )
 
     def _ingest_file(
@@ -116,6 +117,7 @@ class KnowledgeBaseService:
         title: str,
         document_type: str,
         source_name: str,
+        source_url: str = "",
         start_page: int | None = None,
         end_page: int | None = None,
     ) -> UploadResponse:
@@ -134,7 +136,7 @@ class KnowledgeBaseService:
             chunk_overlap=self._settings.CHUNK_OVERLAP,
             document_id=document_id,
             title=title,
-            source_url="",
+            source_url=source_url,
             document_type=document_type,
         )
 
@@ -142,7 +144,7 @@ class KnowledgeBaseService:
             chunks,
             document_id=document_id,
             title=title,
-            source_url="",
+            source_url=source_url,
             document_type=document_type,
             metadata={"source": source_name},
         )
