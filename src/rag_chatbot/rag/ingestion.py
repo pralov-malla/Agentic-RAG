@@ -7,7 +7,10 @@ import logging
 from pathlib import Path
 
 from langchain_core.documents import Document
-from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_text_splitters import (
+    MarkdownHeaderTextSplitter,
+    RecursiveCharacterTextSplitter,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -21,8 +24,10 @@ def load_pdf(
     """Extract pages as Markdown using PyMuPDF4LLM."""
     import pymupdf4llm
 
+    headers = pymupdf4llm.IdentifyHeaders(str(path), body_limit=0)
     pages = pymupdf4llm.to_markdown(
         str(path),
+        hdr_info=headers,
         page_chunks=True,
         show_progress=False,
     )
@@ -93,10 +98,21 @@ def chunk_documents(
     document_type: str,
 ) -> list[Document]:
     """Split documents into indexed chunks with metadata."""
+    header_splitter = MarkdownHeaderTextSplitter(
+        headers_to_split_on=[
+            ("#", "h1"),
+            ("##", "h2"),
+            ("###", "h3"),
+            ("####", "h4"),
+            ("#####", "h5"),
+            ("######", "h6"),
+        ],
+        strip_headers=False,
+    )
     splitter = RecursiveCharacterTextSplitter(
         chunk_size=chunk_size,
         chunk_overlap=chunk_overlap,
-        separators=["\n## ", "\n### ", "\n\n", "\n", ". ", " "],
+        separators=["\n\n", "\n", ". ", " "],
         keep_separator=True,
     )
 
@@ -108,26 +124,36 @@ def chunk_documents(
         page_label = doc.metadata.get("page_label", str(page_number))
         source = doc.metadata.get("source", "")
 
-        for split_text in splitter.split_text(doc.page_content):
-            content_hash = hashlib.sha256(split_text.encode()).hexdigest()[:16]
-            chunks.append(
-                Document(
-                    page_content=split_text,
-                    metadata={
-                        "document_id": document_id,
-                        "title": title,
-                        "source": source,
-                        "source_url": source_url,
-                        "page_number": page_number,
-                        "page_label": page_label,
-                        "section": _extract_section(split_text),
-                        "chunk_index": chunk_index,
-                        "content_hash": content_hash,
-                        "document_type": document_type,
-                    },
-                )
+        for section_doc in header_splitter.split_text(doc.page_content):
+            section = next(
+                (
+                    section_doc.metadata[key]
+                    for key in ("h6", "h5", "h4", "h3", "h2", "h1")
+                    if key in section_doc.metadata
+                ),
+                "",
             )
-            chunk_index += 1
+
+            for split_text in splitter.split_text(section_doc.page_content):
+                content_hash = hashlib.sha256(split_text.encode()).hexdigest()[:16]
+                chunks.append(
+                    Document(
+                        page_content=split_text,
+                        metadata={
+                            "document_id": document_id,
+                            "title": title,
+                            "source": source,
+                            "source_url": source_url,
+                            "page_number": page_number,
+                            "page_label": page_label,
+                            "section": section or _extract_section(split_text) or title,
+                            "chunk_index": chunk_index,
+                            "content_hash": content_hash,
+                            "document_type": document_type,
+                        },
+                    )
+                )
+                chunk_index += 1
 
     logger.info(
         "Chunked %d pages into %d chunks (size=%d, overlap=%d)",
