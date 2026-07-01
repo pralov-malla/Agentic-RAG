@@ -1,2 +1,148 @@
-<!-- Chat interface markup will be implemented here. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agentic RAG Chatbot</title>
+    <!-- Modern typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar / Settings Modal -->
+        <aside class="sidebar glass" id="sidebar">
+            <div class="sidebar-header">
+                <h2>Knowledge Base</h2>
+                <button type="button" class="icon-btn close-sidebar" id="closeSidebarBtn" aria-label="Close knowledge base panel">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
 
+            <div class="status-indicator" role="status" aria-live="polite">
+                <div class="status-dot" id="kbStatusDot"></div>
+                <span id="kbStatusText">Checking status...</span>
+            </div>
+
+            <div class="kb-details" id="kbDetails" style="display: none;">
+                <p><strong>Document:</strong> <span id="kbDocTitle">None</span></p>
+                <p><strong>Chunks:</strong> <span id="kbChunkCount">0</span></p>
+            </div>
+
+            <div class="kb-actions">
+                <h3>Upload New Document</h3>
+                <form id="uploadForm" class="upload-form">
+                    <div class="file-input-wrapper">
+                        <input type="file" id="kbFile" accept=".pdf,.txt" required>
+                        <label for="kbFile" class="file-label" id="fileLabel">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <span id="fileChosen">Choose PDF or TXT</span>
+                        </label>
+                    </div>
+                    <button type="submit" class="btn primary-btn" id="uploadBtn">
+                        <i class="fas fa-upload"></i> Upload & Index
+                    </button>
+                </form>
+
+                <hr class="divider">
+
+                <button type="button" class="btn secondary-btn" id="resetBtn">
+                    <i class="fas fa-undo"></i> Restore Default Document
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Chat Area -->
+        <main class="chat-main">
+            <header class="chat-header">
+                <div class="header-left">
+                    <div class="logo">
+                        <i class="fas fa-sparkles" style="color: var(--primary-color);"></i>
+                        <h1>Agentic RAG</h1>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button type="button" class="icon-btn" id="newChatBtn" title="New Chat" aria-label="Start a new chat">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                    <button type="button" class="icon-btn" id="openSidebarBtn" title="Knowledge base" aria-label="Open knowledge base panel">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                </div>
+            </header>
+
+            <div class="chat-container" id="chatContainer">
+                <!-- Welcome Screen -->
+                <div class="welcome-screen" id="welcomeScreen">
+                    <div class="welcome-icon">
+                        <i class="fas fa-sparkles"></i>
+                    </div>
+                    <h2>How can I help you today?</h2>
+                    <p>Upload a document in the sidebar to start asking context-aware questions.</p>
+
+                    <div class="suggestions">
+                        <button class="suggestion-btn" data-query="Summarize the key points of the document.">
+                            <i class="fas fa-align-left"></i> Summarize key points
+                        </button>
+                        <button class="suggestion-btn" data-query="What is the main topic discussed?">
+                            <i class="fas fa-search"></i> Main topic
+                        </button>
+                        <button class="suggestion-btn" data-query="Extract the most important entities.">
+                            <i class="fas fa-list"></i> Extract entities
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Messages will be injected here -->
+                <div class="messages-wrapper" id="messagesWrapper"></div>
+
+                <!-- Typing Indicator -->
+                <div class="typing-container" id="typingContainer" style="display: none;" role="status" aria-live="polite">
+                    <div class="avatar"><i class="fas fa-sparkles"></i></div>
+                    <div class="typing-indicator">
+                        <span></span><span></span><span></span>
+                    </div>
+                    <span class="sr-only" id="typingStatus">Thinking...</span>
+                </div>
+            </div>
+
+            <footer class="chat-input-area">
+                <div class="input-wrapper">
+                    <form id="chatForm" class="chat-form">
+                        <label for="chatInput" class="sr-only">Ask a question about the document</label>
+                        <input type="text" id="chatInput" placeholder="Ask a question about your document..." autocomplete="off" maxlength="4000" required>
+                        <button type="submit" class="send-btn" id="sendBtn" aria-label="Send message">
+                            <i class="fas fa-arrow-up"></i>
+                        </button>
+                    </form>
+                    <div class="disclaimer">Agentic RAG can make mistakes. Please verify important information.</div>
+                </div>
+            </footer>
+        </main>
+
+        <!-- Overlay for mobile sidebar -->
+        <div class="overlay" id="overlay"></div>
+    </div>
+
+    <!-- Source Modal -->
+    <div class="modal" id="sourceModal" role="dialog" aria-modal="true" aria-labelledby="sourceModalTitle" aria-hidden="true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="sourceModalTitle">Source</h3>
+                <button type="button" class="icon-btn close-modal" id="closeModalBtn" aria-label="Close source details">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="sourceModalBody">
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', path='/chat.js') }}"></script>
+</body>
+</html>

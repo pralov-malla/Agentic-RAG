@@ -2,11 +2,12 @@
 
 import logging
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI
-from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
 
-from rag_chatbot.api.routes import chat, health, knowledge_base
+from rag_chatbot.api.routes import chat, health, knowledge_base, web
 from rag_chatbot.config import settings
 from rag_chatbot.core.logging import configure_logging
 from rag_chatbot.rag.embeddings import build_embeddings
@@ -89,11 +90,10 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+BASE_DIR = Path(__file__).resolve().parent
+app.mount("/static", StaticFiles(directory=str(BASE_DIR / "web" / "static")), name="static")
+
 app.include_router(health.router, prefix="/api/v1")
 app.include_router(knowledge_base.router, prefix="/api/v1")
 app.include_router(chat.router, prefix="/api/v1")
-
-
-@app.get("/", response_class=HTMLResponse)
-async def root():
-    return "<h1>Agentic RAG Chatbot is running</h1>"
+app.include_router(web.router)
