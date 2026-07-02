@@ -69,20 +69,22 @@ Without a Cohere key, the application uses ChromaDB's vector-search ordering.
 
 ### Run with Docker
 
+To test the application exactly as it will be deployed (using the pre-built Docker Hub image):
+
 ```bash
-docker compose -f docker-compose.dev.yml up --build
+docker compose -f docker-compose.prod.yml up -d
 ```
+
+*(Note: For local development and hot-reloading from source, use `docker compose -f docker-compose.dev.yml up --build` instead).*
 
 Open:
 
 ```text
 Application: http://localhost:8000
 Swagger UI:  http://localhost:8000/docs
-ChromaDB:    http://localhost:8100
 ```
 
-A fresh deployment starts without an active index. Restore the bundled document through
-the application or run:
+A fresh deployment starts without an active index. You can upload a document through the web interface, or run the following to load the bundled default document:
 
 ```bash
 curl -X POST http://localhost:8000/api/v1/knowledge-base/default
