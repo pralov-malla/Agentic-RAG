@@ -1,5 +1,8 @@
 // State
 let currentThreadId = localStorage.getItem('agentic_rag_thread_id');
+if (currentThreadId === 'null' || currentThreadId === 'undefined') {
+    currentThreadId = null;
+}
 let currentSources = {}; // Maps source ID (e.g. S1) to chunk data
 
 // DOM Elements
