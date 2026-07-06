@@ -31,13 +31,13 @@ jobs:
         cache-from: type=registry,ref=pralovmalla/agentic-rag:buildcache
         cache-to: type=registry,ref=pralovmalla/agentic-rag:buildcache,mode=max
 
-    - name: Copy docker-compose file to EC2
+    - name: Copy deployment files to EC2
       uses: appleboy/scp-action@v0.1.7
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ubuntu
         key: ${{ secrets.EC2_SSH_KEY }}
-        source: "docker-compose.prod.yml"
+        source: "docker-compose.prod.yml,nginx/"
         target: "~/agentic-rag"
 
     - name: Deploy to EC2
