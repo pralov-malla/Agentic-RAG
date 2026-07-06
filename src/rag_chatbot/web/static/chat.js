@@ -42,7 +42,14 @@ document.addEventListener('DOMContentLoaded', () => {
     checkKbStatus();
 
     if (!currentThreadId) {
-        currentThreadId = crypto.randomUUID();
+        // Fallback for HTTP (non-secure) contexts where crypto.randomUUID is undefined
+        if (typeof crypto.randomUUID === 'function') {
+            currentThreadId = crypto.randomUUID();
+        } else {
+            currentThreadId = '10000000-1000-4000-8000-100000000000'.replace(/[018]/g, c =>
+                (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+            );
+        }
         localStorage.setItem('agentic_rag_thread_id', currentThreadId);
     }
 });
@@ -234,7 +241,13 @@ function startNewChat() {
         fetch(`/api/v1/threads/${currentThreadId}`, { method: 'DELETE' }).catch(console.error);
     }
 
-    currentThreadId = crypto.randomUUID();
+    if (typeof crypto.randomUUID === 'function') {
+        currentThreadId = crypto.randomUUID();
+    } else {
+        currentThreadId = '10000000-1000-4000-8000-100000000000'.replace(/[018]/g, c =>
+            (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+        );
+    }
     localStorage.setItem('agentic_rag_thread_id', currentThreadId);
 
     messagesWrapper.innerHTML = '';
